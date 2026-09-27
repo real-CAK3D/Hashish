@@ -44,7 +44,7 @@ def draw(name, prompt, size="1024x1536"):
 def render(ed):
     m = ed["month"]
     d = dt.date.fromisoformat(m + "-01")
-    no = (d.year - 2026) * 12 + d.month - 9
+    no = (d.year - 2026) * 12 + d.month - 8
     pin = ed.get("pinup") or {}
     cover_ok = draw("cover-%s.jpg" % m, "A glossy 1970s men's-lifestyle magazine cover photograph, dramatic warm studio lighting, rich red velvet and gold tones: "
                     "%s posed like a cover star on a velvet chaise, soft focus glow, bokeh lights. Leave the top quarter clear for the magazine title." % (pin.get("look") or "a small single-board computer"))
