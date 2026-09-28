@@ -53,9 +53,12 @@ def render(ed):
                    size="1536x1024")
     seal = '<a class="seal" href="/" aria-label="Back to The Corner Chronicle">%s</a>' % fb.SEAL
     cover = ('<div class="hs-cover">%s<div class="hs-logo">HASHISH</div><div class="hs-issue">%s · No. %d · THE GARDEN\'S GLOSSY</div>'
-             '<div class="hs-lines"><span>CENTERFOLD: %s</span><span>%s</span><span>STRAIN OF THE MONTH: %s</span></div></div>'
+             '<div class="hs-lines"><span>CENTERFOLD: %s</span><span>%s</span><span>STRAIN OF THE MONTH: %s</span>%s</div>'
+             '<div class="hs-corner">ONE PINCH<br><b>THE MACHINE ISSUE</b></div></div>'
              % (('<img src="../img/cover-%s.jpg" alt="">' % m) if cover_ok else "", e(d.strftime("%B %Y").upper()), no, e((pin.get("title") or "").upper()),
-                e(((ed.get("interview") or {}).get("headline") or "").upper()), e(((ed.get("strain") or {}).get("name") or "").upper())))
+                e(((ed.get("interview") or {}).get("headline") or "").upper()), e(((ed.get("strain") or {}).get("name") or "").upper()),
+                ('<span class="hs-plus">PLUS: %s</span>' % " · ".join(e(str(f.get("title") or "").upper()) for f in (ed.get("features") or [])[:2] if isinstance(f, dict))
+                 if ed.get("features") else "")))
     pages = [fb.page("Hashish", cover, " hardcover hs-cov")]
     toc = [("Centerfold", pin.get("title")), ("The Interview", (ed.get("interview") or {}).get("headline")), ("Features", ", ".join(f.get("title", "") for f in ed.get("features") or [])),
            ("Hash Tags", "gadgets worth drooling over"), ("Strain of the Month", (ed.get("strain") or {}).get("name"))]
@@ -99,8 +102,10 @@ def build(path=None):
     if eds:
         open(os.path.join(SITE, "index.html"), "w").write(open(os.path.join(SITE, "issues", eds[0] + ".html")).read().replace('href="../', 'href="').replace('src="../', 'src="'))
         ed = pk.load(os.path.join(ROOT, "drafts", eds[0] + ".json"))
+        lines = ["Centerfold: %s" % ((ed.get("pinup") or {}).get("title") or ""), (ed.get("interview") or {}).get("headline") or "",
+                 "Strain of the month: %s" % ((ed.get("strain") or {}).get("name") or "")]
         pk.latest(SITE, "Hashish", eds[0] + "-01", "Centerfold: %s" % ((ed.get("pinup") or {}).get("title") or ""), "issues/%s.html" % eds[0], [x + "-01" for x in eds[:10]],
-                  cover=("img/cover-%s.jpg" % eds[0]) if os.path.exists(os.path.join(SITE, "img", "cover-%s.jpg" % eds[0])) else "")
+                  lines=[x for x in lines if x.split(": ")[-1]], cover=("img/cover-%s.jpg" % eds[0]) if os.path.exists(os.path.join(SITE, "img", "cover-%s.jpg" % eds[0])) else "")
     else:   # before the first issue: a preview
         today = dt.date.today()
         nxt = today.replace(day=15) if today.day < 15 else (today.replace(day=1) + dt.timedelta(days=32)).replace(day=15)
